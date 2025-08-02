@@ -1,17 +1,26 @@
 
+import { db } from '../db';
+import { testimonialsTable } from '../db/schema';
 import { type CreateTestimonialInput, type Testimonial } from '../schema';
 
 export const createTestimonial = async (input: CreateTestimonialInput): Promise<Testimonial> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is creating a new customer testimonial and persisting it in the database.
-    return Promise.resolve({
-        id: 0, // Placeholder ID
+  try {
+    // Insert testimonial record
+    const result = await db.insert(testimonialsTable)
+      .values({
         customer_name: input.customer_name,
         rating: input.rating,
         review_text: input.review_text,
         location: input.location,
         service_type: input.service_type,
-        is_featured: input.is_featured,
-        created_at: new Date() // Placeholder date
-    } as Testimonial);
-}
+        is_featured: input.is_featured
+      })
+      .returning()
+      .execute();
+
+    return result[0];
+  } catch (error) {
+    console.error('Testimonial creation failed:', error);
+    throw error;
+  }
+};

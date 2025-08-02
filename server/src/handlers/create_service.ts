@@ -1,16 +1,27 @@
 
+import { db } from '../db';
+import { servicesTable } from '../db/schema';
 import { type CreateServiceInput, type Service } from '../schema';
 
 export const createService = async (input: CreateServiceInput): Promise<Service> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is creating a new plumbing service and persisting it in the database.
-    return Promise.resolve({
-        id: 0, // Placeholder ID
+  try {
+    // Insert service record
+    const result = await db.insert(servicesTable)
+      .values({
         name: input.name,
         description: input.description,
         icon: input.icon,
         price_range: input.price_range,
-        is_emergency: input.is_emergency,
-        created_at: new Date() // Placeholder date
-    } as Service);
-}
+        is_emergency: input.is_emergency
+      })
+      .returning()
+      .execute();
+
+    // Return the created service
+    const service = result[0];
+    return service;
+  } catch (error) {
+    console.error('Service creation failed:', error);
+    throw error;
+  }
+};
